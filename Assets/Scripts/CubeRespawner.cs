@@ -6,23 +6,33 @@ public class CubeRespawner : MonoBehaviour
 {
     [SerializeField] private float _respawnTime;
     private CubeSpawner _cubeSpawner;
+    private CubeMover _cubeMover;
     private WaitForSeconds _waitForSeconds;
     private Vector3 _spawnPoint;
     public static Action OnCubeRespawned;
 
+    private void InitializeCube() => _cubeMover = FindObjectOfType<CubeMover>();
+
     private IEnumerator RespawnCube()
     {
         yield return _waitForSeconds;
-        transform.position = _spawnPoint;
-        //gameObject.SetActive(true);
+        _cubeMover.transform.position = _spawnPoint;
         OnCubeRespawned?.Invoke();
     }
 
     private void Respawn() => StartCoroutine(RespawnCube());
 
-    private void OnEnable() => CubeMover.OnMoved += Respawn;
+    private void OnEnable()
+    {
+        CubeSpawner.OnSpawned += InitializeCube;
+        CubeMover.OnMoved += Respawn;
+    }
 
-    private void OnDisable() => CubeMover.OnMoved -= Respawn;
+    private void OnDisable()
+    {
+        CubeSpawner.OnSpawned -= InitializeCube;
+        CubeMover.OnMoved -= Respawn;
+    }
 
     private void Awake()
     {
@@ -30,9 +40,5 @@ public class CubeRespawner : MonoBehaviour
         _cubeSpawner = FindObjectOfType<CubeSpawner>();
     }
 
-    private void Start()
-    {
-        _spawnPoint = _cubeSpawner.SpawnPoint;
-        OnCubeRespawned?.Invoke();
-    }
+    private void Start() => _spawnPoint = _cubeSpawner.SpawnPoint;
 }

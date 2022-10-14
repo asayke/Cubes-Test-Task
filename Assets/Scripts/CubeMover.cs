@@ -11,8 +11,7 @@ public class CubeMover : MonoBehaviour
 
     private void Move() => transform.DOMove(_endPoint, _distance / _speed).SetEase(Ease.Linear).OnComplete(() =>
     {
-        // gameObject.SetActive(false);
-        transform.position = Vector3.up * 100f;
+        DOTween.KillAll();
         OnMoved?.Invoke();
     });
 
@@ -20,6 +19,9 @@ public class CubeMover : MonoBehaviour
 
     private void OnDisable() => CubeRespawner.OnCubeRespawned += Move;
 
-    private void Start() =>
+    private void Start()
+    {
         _endPoint = new Vector3(transform.position.x, transform.position.y, transform.position.z + _distance);
+        Move();
+    }
 }
